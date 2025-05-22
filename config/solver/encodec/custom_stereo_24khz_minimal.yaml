@@ -1,0 +1,40 @@
+# @package __global__
+
+defaults:
+  - encodec/default
+  - _self_
+
+# Base model configuration
+compression_model_checkpoint: //reference/encodec_24khz/checkpoint.th
+
+# Training parameters
+channels: 2  # Stereo audio
+sample_rate: 24000
+
+dataset:
+  batch_size: 32  # Adjusted for 24GB GPUs
+  num_workers: 8
+  datasource:
+    train:
+      path: /home/alistairfraser/training_data/tokenize/*.wav
+      mono: false  # Don't convert to mono
+    valid:
+      path: /home/alistairfraser/training_data/tokenize/*.wav
+      mono: false
+
+# Distributed training settings
+distributed:
+  world_size: 2  # Number of GPUs
+  rank: 0
+  dist_backend: nccl
+  dist_url: tcp://localhost:23456
+
+# Logging configuration
+logging:
+  log_tensorboard: false
+  log_wandb: true
+  wandb:
+    project: "encodec-birdcon-24khz"
+    name: "birdconv-finetune"
+    tags: ["stereo", "24khz", "finetune"]
+    notes: "Fine-tuning EnCodec 24kHz on birdconv audio data" 
