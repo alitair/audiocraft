@@ -1,6 +1,7 @@
 # @package __global__
 
 defaults:
+  - /solver/default
   - _self_
 
 # Base model configuration
