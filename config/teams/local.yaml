@@ -1,0 +1,6 @@
+darwin:
+  dora_dir: /home/alistairfraser/checkpoints/audiocraft/outputs
+  partitions:
+    global: debug
+    team: debug
+  reference_dir: /home/alistairfraser/checkpoints/audiocraft/reference 
