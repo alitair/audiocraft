@@ -1,7 +1,6 @@
 # @package __global__
 
 defaults:
-  - encodec/default
   - _self_
 
 # Base model configuration
