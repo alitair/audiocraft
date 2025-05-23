@@ -355,9 +355,7 @@ def generate_pngs(file_path, waveform, sample_rate, tokens , pmi_matrices, codeb
 
     print("waveform.shape:", waveform.shape)
     print("tokens.shape:", tokens.shape)
-    print("pmi_matrices.shape:", pmi_matrices.shape)
     print("codebook.shape:", codebook.shape)
-    print("rho:", rho)
 
     for ch in range(waveform.shape[0]):
         
