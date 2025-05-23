@@ -106,9 +106,9 @@ mpd:
   activation_params: {negative_slope: 0.3}
   norm: weight_norm
 
-# data hyperparameters
+# data hyperparameters ALISTAIR MODIFY batch_size
 dataset:
-  batch_size: 64
+  batch_size: 4
   num_workers: 10
   segment_duration: 1
   train:
