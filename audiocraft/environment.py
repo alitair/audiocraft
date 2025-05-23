@@ -67,12 +67,11 @@ class AudioCraftEnvironment:
         self.cluster: str = cluster
 
         # Config path resolution
-        config_path = os.getenv(
-            "AUDIOCRAFT_CONFIG",
-            Path(__file__)
-            .parent.parent.joinpath("config/teams", self.team)
-            .with_suffix(".yaml"),
-        )
+        default_config_path = Path(__file__).parent.parent.joinpath("config/teams", self.team).with_suffix(".yaml")
+        print(f"\nDefault config path would be: {default_config_path}")
+        print(f"Default config path exists: {default_config_path.exists()}")
+        
+        config_path = os.getenv("AUDIOCRAFT_CONFIG", default_config_path)
         print(f"\nConfig path resolution:")
         print(f"AUDIOCRAFT_CONFIG env var: {os.getenv('AUDIOCRAFT_CONFIG')}")
         print(f"Resolved config path: {config_path}")
