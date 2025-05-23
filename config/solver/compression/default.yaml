@@ -108,7 +108,7 @@ mpd:
 
 # data hyperparameters ALISTAIR MODIFY batch_size
 dataset:
-  batch_size: 4
+  batch_size: 16
   num_workers: 10
   segment_duration: 1
   train:
