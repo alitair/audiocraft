@@ -65,11 +65,18 @@ def encode_wav_tokens(file_path, model, processor, return_wav_file=False):
     waveform, sample_rate = load_wav_file(file_path)
     all_codes = []
     for ch in range(waveform.shape[0]):
-        inputs = processor(raw_audio=waveform[ch].numpy(),
-                         sampling_rate=sample_rate,
-                         return_tensors="pt")
-        codes = model.encode(inputs["input_values"], inputs["padding_mask"]) #,bandwidth=1.5)
-        all_codes.append(codes.audio_codes)
+        if isinstance(model, CompressionModel):
+            # Handle CompressionModel
+            x = waveform[ch].unsqueeze(0).unsqueeze(0)  # Add batch and channel dimensions
+            codes, _ = model.encode(x)
+            all_codes.append(codes)
+        else:
+            # Handle Hugging Face EncodecModel
+            inputs = processor(raw_audio=waveform[ch].numpy(),
+                             sampling_rate=sample_rate,
+                             return_tensors="pt")
+            codes = model.encode(inputs["input_values"], inputs["padding_mask"], bandwidth=1.5)
+            all_codes.append(codes.audio_codes)
     
     combined = torch.cat(all_codes, dim=1)
     print("Shape of combined:", combined.shape)
