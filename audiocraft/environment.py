@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import re
 import typing as tp
+import json
 
 import omegaconf
 
@@ -82,7 +83,8 @@ class AudioCraftEnvironment:
         try:
             self.config = omegaconf.OmegaConf.load(config_path)
             print(f"Config loaded successfully")
-            print(f"Config contents: {self.config}")
+            print("\nFull configuration:")
+            print(omegaconf.OmegaConf.to_yaml(self.config))
         except Exception as e:
             print(f"Error loading config: {str(e)}")
             raise
