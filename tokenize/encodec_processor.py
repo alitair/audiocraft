@@ -45,6 +45,7 @@ def encode_wav_tokens(file_path, model, processor, return_wav_file=False):
     def load_wav_file(file_path):
         print("loading - ", file_path)
         waveform, sample_rate = torchaudio.load(file_path)
+        print("waveform.shape:", waveform.shape)
         if sample_rate != 24000:
             waveform = torchaudio.transforms.Resample(sample_rate, 24000)(waveform)
             sample_rate = 24000
@@ -57,8 +58,10 @@ def encode_wav_tokens(file_path, model, processor, return_wav_file=False):
     if os.path.exists(cache_path):
         print("loading - ", cache_path)
         codes = torch.load(cache_path)
+        print("codes.shape:", codes.shape)
         if return_wav_file:
             waveform, sample_rate = load_wav_file(file_path)
+            print("waveform.shape:", waveform.shape)
             return waveform, sample_rate, codes
         return None, 24000, codes
 
