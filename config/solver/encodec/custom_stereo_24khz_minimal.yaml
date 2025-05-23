@@ -23,6 +23,16 @@ dataset:
   batch_size: 4  # Reduced batch size for 24GB GPUs
   num_workers: 4
   segment_duration: 1
+  datasource:
+    train:
+      path: /home/alistairfraser/training_data/tokenize/*.wav
+      mono: false  # Don't convert to mono
+    valid:
+      path: /home/alistairfraser/training_data/tokenize/*.wav
+      mono: false
+    evaluate:
+      path: /home/alistairfraser/training_data/tokenize/*.wav
+      mono: false
 
 # Distributed training
 distributed:
