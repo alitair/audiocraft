@@ -48,36 +48,73 @@ class AudioCraftEnvironment:
 
     def __init__(self) -> None:
         """Loads configuration."""
+        print("\n=== AudioCraftEnvironment Initialization ===")
+        
+        # Team setup
         self.team: str = os.getenv("AUDIOCRAFT_TEAM", self.DEFAULT_TEAM)
+        print(f"Team: {self.team}")
+        print(f"AUDIOCRAFT_TEAM env var: {os.getenv('AUDIOCRAFT_TEAM')}")
+        
+        # Cluster detection
         cluster_type = _guess_cluster_type()
-        cluster = os.getenv(
-            "AUDIOCRAFT_CLUSTER", cluster_type.value
-        )
-        logger.info("Detecting cluster type %s", cluster_type)
-
+        print(f"Detected cluster type: {cluster_type}")
+        print(f"Cluster type value: {cluster_type.value}")
+        
+        cluster = os.getenv("AUDIOCRAFT_CLUSTER", cluster_type.value)
+        print(f"Using cluster: {cluster}")
+        print(f"AUDIOCRAFT_CLUSTER env var: {os.getenv('AUDIOCRAFT_CLUSTER')}")
+        
         self.cluster: str = cluster
 
+        # Config path resolution
         config_path = os.getenv(
             "AUDIOCRAFT_CONFIG",
             Path(__file__)
             .parent.parent.joinpath("config/teams", self.team)
             .with_suffix(".yaml"),
         )
-        self.config = omegaconf.OmegaConf.load(config_path)
+        print(f"\nConfig path resolution:")
+        print(f"AUDIOCRAFT_CONFIG env var: {os.getenv('AUDIOCRAFT_CONFIG')}")
+        print(f"Resolved config path: {config_path}")
+        print(f"Config path exists: {Path(config_path).exists()}")
+        
+        # Config loading
+        print("\nLoading configuration:")
+        try:
+            self.config = omegaconf.OmegaConf.load(config_path)
+            print(f"Config loaded successfully")
+            print(f"Config contents: {self.config}")
+        except Exception as e:
+            print(f"Error loading config: {str(e)}")
+            raise
+
+        # Cluster config
+        print("\nGetting cluster configuration:")
+        try:
+            cluster_config = self._get_cluster_config()
+            print(f"Cluster config: {cluster_config}")
+        except Exception as e:
+            print(f"Error getting cluster config: {str(e)}")
+            raise
+
         self._dataset_mappers = []
-        cluster_config = self._get_cluster_config()
         if "dataset_mappers" in cluster_config:
             for pattern, repl in cluster_config["dataset_mappers"].items():
                 regex = re.compile(pattern)
                 self._dataset_mappers.append((regex, repl))
 
     def _get_cluster_config(self) -> omegaconf.DictConfig:
+        print(f"\n_get_cluster_config:")
+        print(f"Config type: {type(self.config)}")
+        print(f"Config keys: {list(self.config.keys()) if hasattr(self.config, 'keys') else 'No keys'}")
+        print(f"Looking for cluster: {self.cluster}")
         assert isinstance(self.config, omegaconf.DictConfig)
         return self.config[self.cluster]
 
     @classmethod
     def instance(cls):
         if cls._instance is None:
+            print("\nCreating new instance")
             cls._instance = cls()
         return cls._instance
 
@@ -105,10 +142,16 @@ class AudioCraftEnvironment:
         """Gets the path to the dora directory for the current team and cluster.
         Value is overridden by the AUDIOCRAFT_DORA_DIR env var.
         """
-        cluster_config = cls.instance()._get_cluster_config()
-        dora_dir = os.getenv("AUDIOCRAFT_DORA_DIR", cluster_config["dora_dir"])
-        logger.warning(f"Dora directory: {dora_dir}")
-        return Path(dora_dir)
+        print("\n=== Getting Dora Directory ===")
+        try:
+            cluster_config = cls.instance()._get_cluster_config()
+            print(f"Cluster config: {cluster_config}")
+            dora_dir = os.getenv("AUDIOCRAFT_DORA_DIR", cluster_config["dora_dir"])
+            print(f"Dora directory: {dora_dir}")
+            return Path(dora_dir)
+        except Exception as e:
+            print(f"Error in get_dora_dir: {str(e)}")
+            raise
 
     @classmethod
     def get_reference_dir(cls) -> Path:
