@@ -268,7 +268,8 @@ def plot_waveform_and_pmi_windowed(channel_waveform, sample_rate, token_ch, pmi_
     end_idx   = min(T, int(np.ceil( end_time   / frame_duration - 0.5)) + 1)
 
     mat = compute_pmi_matrix(token_ch[start_idx:end_idx],codebook=codebook,rho=rho)[0]
-
+    if torch.is_tensor(mat):
+        mat = mat.cpu().numpy()
 
     #compute an array of pmi_win values for 1-5 distances, make sure you don't go out of range on the left side
     
