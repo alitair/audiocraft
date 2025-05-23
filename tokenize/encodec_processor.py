@@ -227,12 +227,12 @@ def get_model_and_processor(model_path="facebook/encodec_24khz"):
     if model_path.endswith(".bin") or os.path.isfile(model_path):
         model = CompressionModel.get_pretrained(model_path)
         processor = AutoProcessor.from_pretrained("facebook/encodec_24khz")
+        codebook = model.quantizer.vq.layers[0]._codebook.embed
     else:
         from transformers import EncodecModel
         model = EncodecModel.from_pretrained(model_path)
         processor = AutoProcessor.from_pretrained(model_path)
-
-    codebook = model.quantizer.layers[0].codebook.embed
+        codebook = model.quantizer.layers[0].codebook.embed
     return model, processor, codebook
 
 def plot_waveform_and_pmi_windowed(channel_waveform, sample_rate, token_ch, pmi_matrix, cmap,
