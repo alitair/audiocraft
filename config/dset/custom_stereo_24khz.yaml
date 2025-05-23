@@ -15,10 +15,10 @@ resample_rate: 24000  # Downsample to 24kHz
 datasource:
   max_sample_rate: 48000
   max_channels: 2
-  train: /home/alistairfraser/training_data/train.jsonl
-  valid: /home/alistairfraser/training_data/valid.jsonl
-  evaluate: /home/alistairfraser/training_data/evaluate.jsonl
-  generate: /home/alistairfraser/training_data/generate.jsonl
+  train: /home/alistairfraser/training_data/train_with_sr.jsonl
+  valid: /home/alistairfraser/training_data/valid_with_sr.jsonl
+  evaluate: /home/alistairfraser/training_data/evaluate_with_sr.jsonl
+  generate: /home/alistairfraser/training_data/generate_with_sr.jsonl
 
 
 # Dataset configuration
