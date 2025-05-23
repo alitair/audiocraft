@@ -63,14 +63,24 @@ def upload_model(checkpoint_path: str, repo_id: str):
     else:
         raise ValueError("Checkpoint format not recognized. Expected 'model' or 'best_state' key.")
 
-    model.load_state_dict(state_dict, strict=False)
+    missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
+    if missing_keys:
+        print("⚠️ Missing keys in the checkpoint that were not initialized in the model:")
+        for k in missing_keys:
+            print(f"  - {k}")
+    if unexpected_keys:
+        print("⚠️ Unexpected keys in the checkpoint that do not match the model:")
+        for k in unexpected_keys:
+            print(f"  - {k}")
+    if not missing_keys and not unexpected_keys:
+        print("✅ All model weights loaded successfully.")
 
     # Create local directory if it doesn't exist
     os.makedirs(repo_id, exist_ok=True)
 
-    # Save model state dict
-    print(f"Saving model state dict...")
-    torch.save(model.state_dict(), os.path.join(repo_id, "pytorch_model.bin"))
+    # Save model in Hugging Face-compatible format
+    print("Saving model in Hugging Face format...")
+    model.save_pretrained(repo_id)
 
     # Save model config
     print("Saving model config...")
@@ -120,11 +130,12 @@ This is an EnCodec model fine-tuned for audio compression.
 ## Usage
 
 ```python
-from transformers import AutoProcessor, AutoModel
+from transformers import AutoProcessor
+from audiocraft.models import EncodecModel
 import torch
 
 # Load model and processor
-model = AutoModel.from_pretrained("{repo_id}")
+model = EncodecModel.from_pretrained("{repo_id}")
 processor = AutoProcessor.from_pretrained("{repo_id}")
 
 # Process audio
