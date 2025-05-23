@@ -18,7 +18,7 @@ import torch
 from transformers import AutoProcessor, AutoModel
 from audiocraft.models import CompressionModel
 import os
-from huggingface_hub import HfApi, login, whoami
+from huggingface_hub import HfApi, login, whoami, create_repo
 import json
 import sys
 
@@ -88,6 +88,45 @@ def upload_model(checkpoint_path: str, repo_id: str):
     print("Loading and saving processor...")
     processor = AutoProcessor.from_pretrained("facebook/encodec_24khz")
     processor.save_pretrained(repo_id)
+
+    # Create README.md
+    print("Creating README.md...")
+    readme_content = f"""# {repo_id}
+
+This is an EnCodec model fine-tuned for audio compression.
+
+## Model Description
+
+- **Model type:** EnCodec
+- **Sample rate:** 24kHz
+- **Channels:** 1 (mono)
+- **Base model:** facebook/encodec_24khz
+
+## Usage
+
+```python
+from transformers import AutoProcessor, AutoModel
+import torch
+
+# Load model and processor
+model = AutoModel.from_pretrained("{repo_id}")
+processor = AutoProcessor.from_pretrained("{repo_id}")
+
+# Process audio
+inputs = processor(audio, sampling_rate=24000, return_tensors="pt")
+outputs = model(**inputs)
+```
+"""
+    with open(os.path.join(repo_id, "README.md"), "w") as f:
+        f.write(readme_content)
+
+    # Create repository if it doesn't exist
+    print("Creating repository on Hugging Face Hub...")
+    try:
+        create_repo(repo_id, repo_type="model", exist_ok=True)
+    except Exception as e:
+        print(f"❌ Error creating repository: {str(e)}")
+        return 1
 
     # Push to Hugging Face Hub
     print("Pushing to Hugging Face Hub...")
