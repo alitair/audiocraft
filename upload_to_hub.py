@@ -15,10 +15,11 @@ Example:
 
 import argparse
 import torch
-from transformers import AutoProcessor
+from transformers import AutoProcessor, AutoModel
 from audiocraft.models import CompressionModel
 import os
 from huggingface_hub import HfApi, login
+import json
 
 def upload_model(checkpoint_path: str, repo_id: str):
     # Verify checkpoint exists
@@ -45,19 +46,41 @@ def upload_model(checkpoint_path: str, repo_id: str):
     # Create local directory if it doesn't exist
     os.makedirs(repo_id, exist_ok=True)
 
-    # Save model to local directory
-    model.save_pretrained(repo_id)
-    print(f"Model saved to ./{repo_id}")
+    # Save model state dict
+    print(f"Saving model state dict...")
+    torch.save(model.state_dict(), os.path.join(repo_id, "pytorch_model.bin"))
+
+    # Save model config
+    print("Saving model config...")
+    config = {
+        "model_type": "encodec",
+        "sample_rate": 24000,
+        "channels": 1,
+        "hidden_size": 128,
+        "num_filters": 32,
+        "kernel_size": 7,
+        "stride": 2,
+        "num_residual_layers": 1,
+        "num_embeddings": 1024,
+        "embedding_dim": 128,
+        "use_conv_shortcut": True
+    }
+    with open(os.path.join(repo_id, "config.json"), "w") as f:
+        json.dump(config, f, indent=2)
 
     # Load and save processor
     print("Loading and saving processor...")
     processor = AutoProcessor.from_pretrained("facebook/encodec_24khz")
     processor.save_pretrained(repo_id)
 
-    # Push both to Hugging Face Hub
+    # Push to Hugging Face Hub
     print("Pushing to Hugging Face Hub...")
-    model.push_to_hub(repo_id)
-    processor.push_to_hub(repo_id)
+    api = HfApi()
+    api.upload_folder(
+        folder_path=repo_id,
+        repo_id=repo_id,
+        repo_type="model"
+    )
 
     print(f"✅ Model and processor successfully uploaded to: https://huggingface.co/{repo_id}")
 
