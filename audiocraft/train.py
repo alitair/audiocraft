@@ -130,7 +130,7 @@ def init_seed_and_system(cfg):
 @hydra_main(config_path='../config', config_name='config', version_base='1.1')
 def main(cfg):
     init_seed_and_system(cfg)
-    print(f"Config: {cfg}")
+    print(f"Config: {omegaconf.OmegaConf.to_yaml(cfg)}")
 
     # Setup logging both to XP specific folder, and to stderr.
     log_name = '%s.log.{rank}' % cfg.execute_only if cfg.execute_only else 'solver.log.{rank}'
