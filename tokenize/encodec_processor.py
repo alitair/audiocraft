@@ -208,6 +208,22 @@ def plot_codebook_matrix(codebook, cmap, output_path):
 
 @lru_cache(maxsize=1)
 def get_model_and_processor(model_path="facebook/encodec_24khz"):
+    # if model_path.endswith(".th"):
+    #     # Load checkpoint
+    #     checkpoint = torch.load(model_path, map_location="cpu")
+    #     if "model" in checkpoint:
+    #         state_dict = checkpoint["model"]
+    #     elif "best_state" in checkpoint:
+    #         state_dict = checkpoint["best_state"]
+    #     else:
+    #         raise ValueError("Checkpoint format not recognized. Expected 'model' or 'best_state' key.")
+        
+    #     # Load base model from transformers
+    #     from transformers import EncodecModel
+    #     model = EncodecModel.from_pretrained("facebook/encodec_24khz")
+    #     # Load state dict with strict=False to handle missing keys
+    #     model.load_state_dict(state_dict, strict=False)
+    #     processor = AutoProcessor.from_pretrained("facebook/encodec_24khz")
     if model_path.endswith(".bin") or os.path.isfile(model_path):
         model = CompressionModel.get_pretrained(model_path)
         processor = AutoProcessor.from_pretrained("facebook/encodec_24khz")
@@ -217,6 +233,7 @@ def get_model_and_processor(model_path="facebook/encodec_24khz"):
         processor = AutoProcessor.from_pretrained(model_path)
 
     codebook = model.quantizer.layers[0].codebook.embed
+    return model, processor, codebook
 
 def plot_waveform_and_pmi_windowed(channel_waveform, sample_rate, token_ch, pmi_matrix, cmap,
                                  output_prefix, channel_idx, window_idx, window_duration=30.0, max_distance=2,codebook=None,rho=1.0):

@@ -82,6 +82,10 @@ def upload_model(checkpoint_path: str, repo_id: str):
     print("Saving model in Hugging Face format...")
     from audiocraft.utils import export as ac_export
     ac_export.export_encodec(checkpoint_path, os.path.join(repo_id, "compression_state_dict.bin"))
+    # Also export to the directory of the original checkpoint
+    checkpoint_dir = os.path.dirname(os.path.abspath(checkpoint_path))
+    export_path = os.path.join(checkpoint_dir, "compression_state_dict.bin")
+    ac_export.export_encodec(checkpoint_path, export_path)
 
     # Save model config
     print("Saving model config...")
