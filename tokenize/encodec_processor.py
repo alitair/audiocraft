@@ -68,8 +68,9 @@ def encode_wav_tokens(file_path, model, processor, return_wav_file=False):
                                       return_tensors="pt")["input_values"],
                              processor(raw_audio=waveform[ch].numpy(),
                                       sampling_rate=sample_rate,
-                                      return_tensors="pt")["padding_mask"],
-                             bandwidth=1.5).audio_codes for ch in range(waveform.shape[0])]
+                                      return_tensors="pt")["padding_mask"]
+                             ).audio_codes for ch in range(waveform.shape[0])]
+                             # ,bandwidth=1.5).audio_codes for ch in range(waveform.shape[0])]
     
     combined = torch.cat(all_codes, dim=1)
     print("Shape of combined:", combined.shape)
