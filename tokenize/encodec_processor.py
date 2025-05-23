@@ -144,11 +144,11 @@ def compute_pmi_matrix(token_list, max_distance=2, codebook=None, rho=1.0, sigma
     npmi[mask] = pmi[mask] / log_joint[mask]
 
     # Modulate PMI by codebook L2 distance, if codebook is available
-    if codebook is not None:
-        with torch.no_grad():
-            distances = torch.cdist(codebook, codebook, p=2).to(pmi.device)
-            normalized = distances / (distances.mean() + 1e-6)
-            npmi *= normalized
+    # if codebook is not None:
+    #     with torch.no_grad():
+    #         distances = torch.cdist(codebook, codebook, p=2).to(pmi.device)
+    #         normalized = distances / (distances.mean() + 1e-6)
+    #         npmi *= normalized
 
     return npmi, float(npmi.min().item()), float(npmi.max().item())
 
