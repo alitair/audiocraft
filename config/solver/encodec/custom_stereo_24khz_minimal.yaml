@@ -14,9 +14,16 @@ dataset:
   batch_size: 4  # Reduced batch size for 24GB GPUs
   num_workers: 4
   segment_duration: 1
+  return_info: false
+  shuffle: true
+  sample_on_duration: true
+  sample_on_weight: true
+  min_segment_ratio: 0.5
   train:
     num_samples: 500000
     shuffle: true
+    shuffle_seed: 0
+    permutation_on_files: false
   valid:
     num_samples: 10000
   evaluate:
@@ -24,6 +31,7 @@ dataset:
   generate:
     num_samples: 50
     segment_duration: 10
+    return_info: true
 
 # Training configuration
 evaluate:
