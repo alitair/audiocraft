@@ -80,7 +80,8 @@ def upload_model(checkpoint_path: str, repo_id: str):
 
     # Save model in Hugging Face-compatible format
     print("Saving model in Hugging Face format...")
-    model.save_pretrained(repo_id)
+    from audiocraft.utils import export as ac_export
+    ac_export.export_encodec(checkpoint_path, os.path.join(repo_id, "compression_state_dict.bin"))
 
     # Save model config
     print("Saving model config...")
@@ -118,29 +119,17 @@ license: mit
 
 # {repo_id}
 
-This is an EnCodec model fine-tuned for audio compression.
-
-## Model Description
-
-- **Model type:** EnCodec
-- **Sample rate:** 24kHz
-- **Channels:** 1 (mono)
-- **Base model:** facebook/encodec_24khz
+This repository contains weights for a fine-tuned EnCodec model trained using AudioCraft.
 
 ## Usage
 
 ```python
+from audiocraft.models import CompressionModel
 from transformers import AutoProcessor
-from audiocraft.models import EncodecModel
-import torch
 
 # Load model and processor
-model = EncodecModel.from_pretrained("{repo_id}")
+model = CompressionModel.get_pretrained("{repo_id}/compression_state_dict.bin")
 processor = AutoProcessor.from_pretrained("{repo_id}")
-
-# Process audio
-inputs = processor(audio, sampling_rate=24000, return_tensors="pt")
-outputs = model(**inputs)
 ```
 """
     with open(os.path.join(repo_id, "README.md"), "w") as f:
