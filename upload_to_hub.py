@@ -25,18 +25,24 @@ import sys
 def check_auth():
     """Check if user is authenticated with Hugging Face."""
     try:
-        whoami()
-        return True
+        user_info = whoami()
+        return user_info["name"]
     except Exception:
-        return False
+        return None
 
 def upload_model(checkpoint_path: str, repo_id: str):
     # Check authentication
-    if not check_auth():
+    username = check_auth()
+    if not username:
         print("❌ Not authenticated with Hugging Face Hub.")
         print("Please run 'huggingface-cli login' first and enter your token.")
         print("You can get your token from: https://huggingface.co/settings/tokens")
         return 1
+
+    # Ensure repo_id includes username
+    if '/' not in repo_id:
+        repo_id = f"{username}/{repo_id}"
+        print(f"Using repository ID: {repo_id}")
 
     # Verify checkpoint exists
     if not os.path.exists(checkpoint_path):
@@ -91,7 +97,16 @@ def upload_model(checkpoint_path: str, repo_id: str):
 
     # Create README.md
     print("Creating README.md...")
-    readme_content = f"""# {repo_id}
+    readme_content = f"""---
+language: en
+tags:
+- audio
+- encodec
+- audio-compression
+license: mit
+---
+
+# {repo_id}
 
 This is an EnCodec model fine-tuned for audio compression.
 
@@ -126,16 +141,22 @@ outputs = model(**inputs)
         create_repo(repo_id, repo_type="model", exist_ok=True)
     except Exception as e:
         print(f"❌ Error creating repository: {str(e)}")
+        print("Make sure you have the necessary permissions and the repository name is valid.")
         return 1
 
     # Push to Hugging Face Hub
     print("Pushing to Hugging Face Hub...")
     api = HfApi()
-    api.upload_folder(
-        folder_path=repo_id,
-        repo_id=repo_id,
-        repo_type="model"
-    )
+    try:
+        api.upload_folder(
+            folder_path=repo_id,
+            repo_id=repo_id,
+            repo_type="model"
+        )
+    except Exception as e:
+        print(f"❌ Error uploading to Hugging Face Hub: {str(e)}")
+        print("Make sure the repository exists and you have the necessary permissions.")
+        return 1
 
     print(f"✅ Model and processor successfully uploaded to: https://huggingface.co/{repo_id}")
     return 0
@@ -143,7 +164,7 @@ outputs = model(**inputs)
 def main():
     parser = argparse.ArgumentParser(description="Upload an EnCodec model checkpoint to the Hugging Face Hub")
     parser.add_argument("checkpoint", help="Path to the .th checkpoint file")
-    parser.add_argument("repo_id", help="Hugging Face repo name, e.g., username/model_name")
+    parser.add_argument("repo_id", help="Hugging Face repo name (will be prefixed with username if not provided)")
     args = parser.parse_args()
 
     try:
