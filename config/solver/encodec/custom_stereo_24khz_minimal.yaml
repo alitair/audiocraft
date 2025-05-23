@@ -1,9 +1,54 @@
 # @package __global__
 
 defaults:
-  - compression/encodec_base_24khz
-  - override /dset: audio/custom_stereo_24khz
+  - ../default
+  - override /dset: custom_stereo_24khz
   - _self_
+
+# Audio configuration
+sample_rate: 24000  # Target sample rate
+channels: 2  # Stereo
+
+# Dataset configuration
+dataset:
+  batch_size: 4  # Reduced batch size for 24GB GPUs
+  num_workers: 4
+  segment_duration: 1
+  train:
+    num_samples: 500000
+    shuffle: true
+  valid:
+    num_samples: 10000
+  evaluate:
+    num_samples: 10000
+  generate:
+    num_samples: 50
+    segment_duration: 10
+
+# Training configuration
+evaluate:
+  every: 25
+  num_workers: 5
+  metrics:
+    visqol: false
+    sisnr: true
+
+# Distributed training configuration
+distributed:
+  ddp: true
+  world_size: 2  # Number of GPUs
+  rank: 0  # Will be set automatically
+  dist_url: env://
+  dist_backend: nccl
+
+# Logging configuration
+logging:
+  tensorboard: true
+  wandb: false
+  log_every: 100
+  log_audio_every: 1000
+  log_audio_num_samples: 4
+  log_audio_max_duration: 10
 
 # Override base model config
 model:

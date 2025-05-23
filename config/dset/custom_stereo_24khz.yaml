@@ -27,3 +27,19 @@ datasource:
   generate:
     path: /home/alistairfraser/training_data/generate/*.wav
     mono: false 
+
+# Dataset configuration
+dataset:
+  batch_size: 4  # Reduced batch size for 24GB GPUs
+  num_workers: 4
+  segment_duration: 1
+  train:
+    num_samples: 500000
+    shuffle: true
+  valid:
+    num_samples: 10000
+  evaluate:
+    num_samples: 10000
+  generate:
+    num_samples: 50
+    segment_duration: 10 
