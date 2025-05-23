@@ -1,0 +1,24 @@
+# @package __global__
+
+defaults:
+  - default
+  - _self_
+
+# Audio configuration
+sample_rate: 48000  # Original sample rate
+channels: 2  # Stereo
+mono: false  # Don't mix to mono
+resample: true  # Enable resampling
+resample_rate: 24000  # Downsample to 24kHz
+
+# Data source configuration
+datasource:
+  train:
+    path: /home/alistairfraser/training_data/tokenize/*.wav
+    mono: false  # Don't convert to mono
+  valid:
+    path: /home/alistairfraser/training_data/tokenize/*.wav
+    mono: false
+  evaluate:
+    path: /home/alistairfraser/training_data/tokenize/*.wav
+    mono: false 

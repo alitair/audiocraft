@@ -2,33 +2,13 @@
 
 defaults:
   - compression/encodec_base_24khz
+  - override /dset: audio/custom_stereo_24khz
   - _self_
 
 # Override base model config
 model:
   channels: 2  # Stereo
   sample_rate: 24000
-
-# Dataset configuration
-dset:
-  audio:
-    sample_rate: 48000  # Original sample rate
-    channels: 2  # Stereo
-    mono: false  # Don't mix to mono
-    resample: true  # Enable resampling
-    resample_rate: 24000  # Downsample to 24kHz
-
-# Data source configuration
-datasource:
-  train:
-    path: /home/alistairfraser/training_data/tokenize/*.wav
-    mono: false  # Don't convert to mono
-  valid:
-    path: /home/alistairfraser/training_data/tokenize/*.wav
-    mono: false
-  evaluate:
-    path: /home/alistairfraser/training_data/tokenize/*.wav
-    mono: false
 
 # Training configuration
 dataset:
