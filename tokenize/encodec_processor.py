@@ -350,7 +350,14 @@ def generate_pngs(file_path, waveform, sample_rate, tokens , pmi_matrices, codeb
     
     num_windows = int((waveform.shape[1] / sample_rate) // 30)
 
+    print("waveform.shape:", waveform.shape)
+    print("tokens.shape:", tokens.shape)
+    print("pmi_matrices.shape:", pmi_matrices.shape)
+    print("codebook.shape:", codebook.shape)
+    print("rho:", rho)
+
     for ch in range(waveform.shape[0]):
+        
         token_ch    = tokens[ch,vq_layer,:].detach().cpu().numpy().tolist()
         waveform_ch = waveform[ch].numpy()
         for w in range(num_windows):
