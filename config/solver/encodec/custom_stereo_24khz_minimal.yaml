@@ -57,6 +57,13 @@ logging:
   log_audio_every: 1000
   log_audio_num_samples: 4
   log_audio_max_duration: 10
+  log_tensorboard: false
+  log_wandb: true
+  wandb:
+    project: "encodec-birdcon-24khz"
+    name: "birdconv-finetune"
+    tags: ["stereo", "24khz", "finetune"]
+    notes: "Fine-tuning EnCodec on birdconv audio data with stereo support"
 
 # Override base model config
 model:
@@ -75,15 +82,6 @@ distributed:
   rank: 0
   dist_url: "tcp://localhost:54321"
 
-# Logging configuration
-logging:
-  log_tensorboard: false
-  log_wandb: true
-  wandb:
-    project: "encodec-birdcon-24khz"
-    name: "birdconv-finetune"
-    tags: ["stereo", "24khz", "finetune"]
-    notes: "Fine-tuning EnCodec on birdconv audio data with stereo support"
 
 # Evaluation configuration
 evaluate:

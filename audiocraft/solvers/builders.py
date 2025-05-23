@@ -327,6 +327,7 @@ def get_audio_datasets(cfg: omegaconf.DictConfig,
             continue  # skipping this as not a path
         if execute_only_stage is not None and split != execute_only_stage:
             continue
+        print(f"Loading audio data split {split}: {str(path)}")
         logger.info(f"Loading audio data split {split}: {str(path)}")
         assert (
             cfg.sample_rate <= max_sample_rate
