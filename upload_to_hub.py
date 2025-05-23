@@ -16,7 +16,7 @@ Example:
 import argparse
 import torch
 from transformers import AutoProcessor
-from audiocraft.models import EncodecModel
+from audiocraft.models import CompressionModel
 import os
 from huggingface_hub import HfApi, login
 
@@ -27,7 +27,7 @@ def upload_model(checkpoint_path: str, repo_id: str):
 
     # Load base EnCodec model
     print(f"Loading base EnCodec model...")
-    model = EncodecModel.encodec_model_24khz()
+    model = CompressionModel.get_pretrained('facebook/encodec_24khz')
 
     print(f"Loading checkpoint from {checkpoint_path}...")
     checkpoint = torch.load(checkpoint_path, map_location="cpu")
