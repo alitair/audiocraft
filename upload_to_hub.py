@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""
+Script to upload an EnCodec model checkpoint to the Hugging Face Hub.
+This script will:
+1. Load the base EnCodec model
+2. Load and apply your checkpoint
+3. Save the model and processor locally
+4. Push everything to the Hugging Face Hub
+
+Usage:
+    python upload_to_hub.py <checkpoint_path> <repo_id>
+Example:
+    python upload_to_hub.py /path/to/checkpoint.th username/model_name
+"""
+
+import argparse
+import torch
+from transformers import AutoProcessor
+from audiocraft.models import EncodecModel
+import os
+from huggingface_hub import HfApi, login
+
+def upload_model(checkpoint_path: str, repo_id: str):
+    # Verify checkpoint exists
+    if not os.path.exists(checkpoint_path):
+        raise FileNotFoundError(f"Checkpoint file not found: {checkpoint_path}")
+
+    # Load base EnCodec model
+    print(f"Loading base EnCodec model...")
+    model = EncodecModel.encodec_model_24khz()
+
+    print(f"Loading checkpoint from {checkpoint_path}...")
+    checkpoint = torch.load(checkpoint_path, map_location="cpu")
+
+    # Handle different checkpoint formats
+    if "model" in checkpoint:
+        state_dict = checkpoint["model"]
+    elif "best_state" in checkpoint:
+        state_dict = checkpoint["best_state"]
+    else:
+        raise ValueError("Checkpoint format not recognized. Expected 'model' or 'best_state' key.")
+
+    model.load_state_dict(state_dict, strict=False)
+
+    # Create local directory if it doesn't exist
+    os.makedirs(repo_id, exist_ok=True)
+
+    # Save model to local directory
+    model.save_pretrained(repo_id)
+    print(f"Model saved to ./{repo_id}")
+
+    # Load and save processor
+    print("Loading and saving processor...")
+    processor = AutoProcessor.from_pretrained("facebook/encodec_24khz")
+    processor.save_pretrained(repo_id)
+
+    # Push both to Hugging Face Hub
+    print("Pushing to Hugging Face Hub...")
+    model.push_to_hub(repo_id)
+    processor.push_to_hub(repo_id)
+
+    print(f"✅ Model and processor successfully uploaded to: https://huggingface.co/{repo_id}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Upload an EnCodec model checkpoint to the Hugging Face Hub")
+    parser.add_argument("checkpoint", help="Path to the .th checkpoint file")
+    parser.add_argument("repo_id", help="Hugging Face repo name, e.g., username/model_name")
+    args = parser.parse_args()
+
+    try:
+        upload_model(args.checkpoint, args.repo_id)
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        return 1
+    return 0
+
+if __name__ == "__main__":
+    exit(main()) 
