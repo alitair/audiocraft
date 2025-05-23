@@ -18,10 +18,26 @@ import torch
 from transformers import AutoProcessor, AutoModel
 from audiocraft.models import CompressionModel
 import os
-from huggingface_hub import HfApi, login
+from huggingface_hub import HfApi, login, whoami
 import json
+import sys
+
+def check_auth():
+    """Check if user is authenticated with Hugging Face."""
+    try:
+        whoami()
+        return True
+    except Exception:
+        return False
 
 def upload_model(checkpoint_path: str, repo_id: str):
+    # Check authentication
+    if not check_auth():
+        print("❌ Not authenticated with Hugging Face Hub.")
+        print("Please run 'huggingface-cli login' first and enter your token.")
+        print("You can get your token from: https://huggingface.co/settings/tokens")
+        return 1
+
     # Verify checkpoint exists
     if not os.path.exists(checkpoint_path):
         raise FileNotFoundError(f"Checkpoint file not found: {checkpoint_path}")
@@ -83,6 +99,7 @@ def upload_model(checkpoint_path: str, repo_id: str):
     )
 
     print(f"✅ Model and processor successfully uploaded to: https://huggingface.co/{repo_id}")
+    return 0
 
 def main():
     parser = argparse.ArgumentParser(description="Upload an EnCodec model checkpoint to the Hugging Face Hub")
@@ -91,11 +108,10 @@ def main():
     args = parser.parse_args()
 
     try:
-        upload_model(args.checkpoint, args.repo_id)
+        return upload_model(args.checkpoint, args.repo_id)
     except Exception as e:
         print(f"❌ Error: {str(e)}")
         return 1
-    return 0
 
 if __name__ == "__main__":
-    exit(main()) 
+    sys.exit(main()) 
