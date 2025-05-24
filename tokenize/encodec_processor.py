@@ -277,7 +277,7 @@ def plot_waveform_and_pmi_windowed(channel_waveform, sample_rate, token_ch, pmi_
     start_idx = max(0, int(np.floor(start_time / frame_duration - 0.5)) + 1)
     end_idx   = min(T, int(np.ceil( end_time   / frame_duration - 0.5)) + 1)
 
-    mat = compute_pmi_matrix(token_ch[start_idx:end_idx],codebook=codebook,rho=rho)[0]
+    # mat = compute_pmi_matrix(token_ch[start_idx:end_idx],codebook=codebook,rho=rho)[0]
     if torch.is_tensor(mat):
         mat = mat.cpu().numpy()
 
@@ -343,6 +343,11 @@ def plot_waveform_and_pmi_windowed(channel_waveform, sample_rate, token_ch, pmi_
     ax3.set_ylabel("PMI")
     ax3.set_xlabel("Time in window (s)")
     ax3.set_title(f"Ch{channel_idx} PMI (window {window_idx*window_duration:.0f}-{end_time:.0f}s)")
+
+    # Highlight negative values in red
+    negative_mask = pmi_win < 0
+    if np.any(negative_mask):
+        ax3.plot(t_pmi_win[negative_mask], pmi_win[negative_mask], 'r.', markersize=2)
 
     plt.tight_layout()
     plt.savefig(f"{output_prefix}_ch{channel_idx}_win{window_idx}.png", dpi=300, bbox_inches='tight')
